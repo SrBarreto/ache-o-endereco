@@ -30,11 +30,13 @@ function initMap() {
     reverseGeocode(lat, lng);
   });
 
-  // if user types coordinates and presses Enter in inputs, go
-  document.getElementById('lat').addEventListener('keydown', function (ev) {
+  // if user types coordinates and presses Enter in inputs, go (se existirem)
+  const latInput = document.getElementById('lat');
+  const lngInput = document.getElementById('lng');
+  if (latInput) latInput.addEventListener('keydown', function (ev) {
     if (ev.key === 'Enter') showMapAtCoordinates();
   });
-  document.getElementById('lng').addEventListener('keydown', function (ev) {
+  if (lngInput) lngInput.addEventListener('keydown', function (ev) {
     if (ev.key === 'Enter') showMapAtCoordinates();
   });
 }
@@ -80,13 +82,18 @@ async function reverseGeocode(lat, lng) {
 }
 
 function setInputs(lat, lng) {
-  document.getElementById('lat').value = Number(lat).toFixed(6);
-  document.getElementById('lng').value = Number(lng).toFixed(6);
+  const latInput = document.getElementById('lat');
+  const lngInput = document.getElementById('lng');
+  if (latInput) latInput.value = Number(lat).toFixed(6);
+  if (lngInput) lngInput.value = Number(lng).toFixed(6);
 }
 
 function showMapAtCoordinates() {
-  const lat = parseFloat(document.getElementById('lat').value);
-  const lng = parseFloat(document.getElementById('lng').value);
+  const latInput = document.getElementById('lat');
+  const lngInput = document.getElementById('lng');
+  if (!latInput || !lngInput) return;
+  const lat = parseFloat(latInput.value);
+  const lng = parseFloat(lngInput.value);
   if (Number.isFinite(lat) && Number.isFinite(lng)) {
     setMarker(lat, lng);
     setInputs(lat, lng);
@@ -191,7 +198,7 @@ function clearSearchResults() {
   if (ul) ul.innerHTML = '';
 }
 
-function selectSearchResult(item) {
+async function selectSearchResult(item) {
   if (!item) return;
   const lat = parseFloat(item.lat);
   const lon = parseFloat(item.lon);
@@ -200,14 +207,41 @@ function selectSearchResult(item) {
   // fill address fields if available
   if (item.address) {
     const addr = item.address;
-    document.getElementById('inputRua').value = addr.road || addr.pedestrian || addr.house_number || '';
-    document.getElementById('inputBairro').value = addr.neighbourhood || addr.suburb || '';
-    document.getElementById('inputCidade').value = addr.city || addr.town || addr.village || '';
+    const rua = addr.road || addr.pedestrian || addr.house_number || '';
+    const bairro = addr.neighbourhood || addr.suburb || '';
+    const cidade = addr.city || addr.town || addr.village || '';
+    document.getElementById('inputRua').value = rua;
+    document.getElementById('inputBairro').value = bairro;
+    document.getElementById('inputCidade').value = cidade;
+    
+    // Buscar CEP pelo endereço
+    const cep = await fetchCEPByAddress(rua, cidade);
+    if (cep) {
+      document.getElementById('cep').value = cep;
+      document.getElementById('cepRow').style.display = 'flex';
+      document.getElementById('manualCepRow').style.display = 'none';
+    }
   }
   updateOverlay(item.display_name, lat, lon);
   clearSearchResults();
   // also clear the input to show chosen address (optional)
   const inp = searchInput(); if (inp) inp.value = item.display_name;
+}
+
+// Buscar CEP pelo endereço (usando ViaCEP)
+async function fetchCEPByAddress(rua, cidade) {
+  if (!rua || !cidade) return null;
+  try {
+    const url = `https://viacep.com.br/ws/${encodeURIComponent(rua)}/${encodeURIComponent(cidade)}/json/`;
+    const resp = await fetch(url);
+    const data = await resp.json();
+    if (data && Array.isArray(data) && data.length > 0) {
+      return data[0].cep;
+    }
+  } catch (err) {
+    console.warn('fetchCEPByAddress error', err);
+  }
+  return null;
 }
 
 // wire up input with debounce
