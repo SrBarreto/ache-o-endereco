@@ -1,0 +1,71 @@
+body {              
+    background-color: #f0f8ff; 
+    font-family: Arial, sans-serif; 
+}
+
+/* Map styles */
+#map {
+    width: 100%;
+    height: 420px;
+    border-radius: 6px;
+    border: 1px solid #cfd8e3;
+}
+
+@media (max-width: 576px) {
+    #map {
+        height: 50vh;
+    }
+}
+
+/* App header */
+.app-header{
+    background: linear-gradient(90deg, #2b88d9, #5ac8fa);
+    color: white;
+}
+.app-title{ font-size: 1.25rem; font-weight:700 }
+
+/* Main card */
+.main-card{ border-radius: 10px; overflow: hidden }
+.main-card .card-body{ padding: 1.25rem }
+
+/* Inputs and buttons */
+input.form-control:focus{ box-shadow: 0 0 0 0.2rem rgba(90,200,250,0.25); border-color:#5ac8fa }
+.btn-primary{ background: linear-gradient(180deg,#1976d2,#1565c0); border: none }
+.btn-success{ background: linear-gradient(180deg,#2e7d32,#1b5e20); border: none }
+
+/* Map overlay */
+.map-overlay{
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    background: rgba(255,255,255,0.95);
+    border-radius: 8px;
+    min-width: 200px;
+    max-width: 320px;
+    backdrop-filter: blur(6px);
+}
+.map-overlay .tiny{ font-size: 11px }
+
+/* small responsive tweaks */
+@media (max-width: 768px){
+    .app-header .container{ flex-direction:column; gap:.5rem; align-items:flex-start }
+    .map-overlay{ left:12px; right:auto; top:12px }
+}
+
+/* subtle card shadow */
+.shadow-sm{ box-shadow: 0 6px 18px rgba(31,45,61,0.08) !important }
+
+/* Search results dropdown */
+.search-results{
+    position:absolute;
+    z-index:1200;
+    top: calc(100% + 6px);
+    left:0;
+    right:0;
+    max-height:240px;
+    overflow:auto;
+    border-radius:6px;
+    box-shadow: 0 8px 20px rgba(31,45,61,0.12);
+}
+.search-results .list-group-item{ cursor:pointer; font-size:0.9rem }
+.search-results .list-group-item:hover{ background:#f8f9fa }
